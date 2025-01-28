@@ -37,6 +37,7 @@ const Editor = () => {
     setTodos((prevTodos) => {
       const todosArray = Object.entries(prevTodos);
       todosArray.pop();
+      todosArray.pop();
       return Object.fromEntries(todosArray);
     }); // Remove the last item
   };
@@ -91,10 +92,12 @@ const Editor = () => {
     if(event.key === 'Enter') {
       const currentTime = Date.now();
       const isDoubleEnter = currentTime - lastEnterTime < 500;
+      console.log(lastEnterTime + " " + currentTime + " " + isDoubleEnter + " " + isToDoMode);
       setLastEnterTime(currentTime);
 
       // Check if we're in a todo item
       const todoItem = node.parentElement?.closest('.todo-item');
+      console.log(todoItem);
       if(todoItem && setIsToDoMode) {
         event.preventDefault();
         
@@ -176,9 +179,9 @@ const Editor = () => {
   return (
       <div className='max-w-2xl mx-auto p-4 bg-black text-white'>
           <div className='flex mb-4 gap-2'>
-              <button onClick={() => formatText('bold')} className="px-4 py-2 bg-gray-200 rounded">B</button>
-              <button onClick={() => formatText('italic')} className="px-4 py-2 bg-gray-200 rounded">I</button>
-              <button onClick={() => formatText('underline')} className="px-4 py-2 bg-gray-200 rounded">U</button>
+              <button onClick={() => formatText('bold')} className="px-4 py-2 bg-black rounded">B</button>
+              <button onClick={() => formatText('italic')} className="px-4 py-2 bg-black rounded">I</button>
+              <button onClick={() => formatText('underline')} className="px-4 py-2 bg-black rounded">U</button>
           </div>
           <div 
             ref ={editorRef}
