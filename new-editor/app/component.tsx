@@ -33,15 +33,6 @@ const Editor = () => {
       document.execCommand(command, false);
   }
 
-  const removeLastTodo = () => {
-    setTodos((prevTodos) => {
-      const todosArray = Object.entries(prevTodos);
-      todosArray.pop();
-      todosArray.pop();
-      return Object.fromEntries(todosArray);
-    }); // Remove the last item
-  };
-
   // Handle keypress for todo list feature
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const selection = window.getSelection();
@@ -50,12 +41,11 @@ const Editor = () => {
 
     const node = range.startContainer;
     const text = node.textContent || '';
-
+    console.log("parentElement: " + node.parentElement?.closest('.todo-item'));
     const isAtLineStart = range.startOffset === 0 || text.slice(0, text.length-2).trim() === '';
     // Detect [] + Space at line start
-    if(event.key === " " && text.endsWith("[]")) {
+    if(event.key === " " && text.endsWith("[]") && isAtLineStart) {
       console.log("I am here.");
-      if(!isAtLineStart) return;
       event.preventDefault();
       setIsToDoMode(true);
       
@@ -78,7 +68,7 @@ const Editor = () => {
       
       // Create new range and set position after checkbox
       const newRange = document.createRange();
-      newRange.setStartAfter(checkbox);
+      newRange.setStartAfter(todoText);
       newRange.collapse(true);
       
       // Update selection
@@ -98,14 +88,13 @@ const Editor = () => {
       // Check if we're in a todo item
       const todoItem = node.parentElement?.closest('.todo-item');
       console.log(todoItem);
-      if(todoItem && setIsToDoMode) {
+      if(todoItem && isToDoMode) {
         event.preventDefault();
         
-        if (isDoubleEnter && text.trim() === '') {
+        if (isDoubleEnter) {
+          // Remove the last todo item
           todoItem.remove();
           console.log("I am also here.");
-          //remove last toodo
-          removeLastTodo();
           document.execCommand('insertParagraph');
           setLastEnterTime(0);
           setIsToDoMode(false);
@@ -128,7 +117,7 @@ const Editor = () => {
           
           // Set cursor after checkbox
           const newRange = document.createRange();
-          newRange.setStartAfter(newCheckbox);
+          newRange.setStartAfter(newText);
           newRange.collapse(true);
           
           // Update selection
@@ -141,27 +130,25 @@ const Editor = () => {
     }
   };
 
-  const createTodoElement = (todoId: string) => {
+const createTodoElement = (todoId: string) => {
     const div = document.createElement('div');
     div.className = 'todo-item';
     div.contentEditable = 'true';
     div.dataset.todoId = todoId;
     div.innerHTML = `
-      <input type="checkbox" 
-             class="todo-checkbox" 
-             data-id="${todoId}" 
-      />
-      <span class="todo-text" contenteditable="true"></span>
-    `;
+        <input type="checkbox"
+                     class="todo-checkbox"
+                     data-id="${todoId}"> &nbsp </input>
+        <span class="todo-text">      </span>`;
     
     const checkbox = div.querySelector('input');
     checkbox?.addEventListener('click', (e) => {
-      e.stopPropagation();
-      handleCheckboxClick(todoId, checkbox.checked);
+        e.stopPropagation();
+        handleCheckboxClick(todoId, checkbox.checked);
     });
     
     return div;
-  };
+};
 
   // Handle to-do checkbox clicks
   const handleCheckboxClick = (todoId: string, checked: boolean) => {
@@ -177,16 +164,17 @@ const Editor = () => {
   };
 
   return (
-      <div className='max-w-2xl mx-auto p-4 bg-black text-white'>
+      <div className='max-w-2xl mx-auto p-4 bg-#161515f3 text-white align-middle'>
+            <h1 className='text-2xl font-bold mb-4'>Todo List</h1>
           <div className='flex mb-4 gap-2'>
-              <button onClick={() => formatText('bold')} className="px-4 py-2 bg-black rounded">B</button>
-              <button onClick={() => formatText('italic')} className="px-4 py-2 bg-black rounded">I</button>
-              <button onClick={() => formatText('underline')} className="px-4 py-2 bg-black rounded">U</button>
+              <button onClick={() => formatText('bold')} className="px-4 py-2 bg-#161515f3 rounded">B</button>
+              <button onClick={() => formatText('italic')} className="px-4 py-2 bg-#161515f3 rounded">I</button>
+              <button onClick={() => formatText('underline')} className="px-4 py-2 bg-#161515f3 rounded">U</button>
           </div>
           <div 
             ref ={editorRef}
             contentEditable
-            className="min-h-[200px] border border-gray-300 rounded p-4 focus:outline-none bg-black text-white"
+            className="min-h-[200px] border border-#161515f3 rounded p-4 focus:outline-none bg-#161515f3 text-white"
             onKeyDown={handleKeyDown}
           >
           </div>
