@@ -33,6 +33,10 @@ const Editor = () => {
       document.execCommand(command, false);
   }
 
+  const getParentElementByTodoId = (todoId: string): HTMLElement | null => {
+    return document.querySelector(`[data-todo-id="${todoId}"]`);
+  };
+
   // Handle keypress for todo list feature
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const selection = window.getSelection();
@@ -41,7 +45,7 @@ const Editor = () => {
 
     const node = range.startContainer;
     const text = node.textContent || '';
-    console.log("parentElement: " + node.parentElement?.closest('.todo-item'));
+    console.log("parentElement: " + node.parentElement);
     const isAtLineStart = range.startOffset === 0 || text.slice(0, text.length-2).trim() === '';
     // Detect [] + Space at line start
     if(event.key === " " && text.endsWith("[]") && isAtLineStart) {
@@ -86,16 +90,19 @@ const Editor = () => {
       setLastEnterTime(currentTime);
 
       // Check if we're in a todo item
-      const todoItem = node.parentElement?.closest('.todo-item');
-      console.log(todoItem);
-      if(todoItem && isToDoMode) {
+      const todoItems = document.querySelectorAll('.todo-item');
+      const lastTodoItem = todoItems[todoItems.length - 1];
+      console.log(lastTodoItem);
+      if(lastTodoItem && isToDoMode) {
         event.preventDefault();
         
-        if (isDoubleEnter) {
+        if (isDoubleEnter && text.trim() === '') {
           // Remove the last todo item
-          todoItem.remove();
+          lastTodoItem.remove();
           console.log("I am also here.");
-          document.execCommand('insertParagraph');
+          if(isDoubleEnter) {
+            document.execCommand('insertParagraph');
+          }
           setLastEnterTime(0);
           setIsToDoMode(false);
           return;
@@ -104,7 +111,7 @@ const Editor = () => {
         if(!isDoubleEnter && text.trim() !== '') {
           const newTodoId = Date.now().toString();
           const newItem = createTodoElement(newTodoId);
-          todoItem.insertAdjacentElement('afterend', newItem);
+          lastTodoItem.insertAdjacentElement('afterend', newItem);
 
           setTodos(prev => ({
             ...prev,
@@ -139,25 +146,27 @@ const createTodoElement = (todoId: string) => {
         <input type="checkbox"
                      class="todo-checkbox"
                      data-id="${todoId}"> &nbsp </input>
-        <span class="todo-text">      </span>`;
+        <span class="todo-text"></span>`;
     
     const checkbox = div.querySelector('input');
     checkbox?.addEventListener('click', (e) => {
         e.stopPropagation();
         handleCheckboxClick(todoId, checkbox.checked);
     });
-    
+
     return div;
 };
 
   // Handle to-do checkbox clicks
   const handleCheckboxClick = (todoId: string, checked: boolean) => {
+    console.log("function called");
     setTodos(prev => ({
       ...prev,
       [todoId]: { ...prev[todoId], checked }
     }));
 
     const todoText = document.querySelector(`[data-todo-id="${todoId}"] .todo-text`);
+    console.log(todoText);
     if (todoText) {
       todoText.classList.toggle('line-through', checked);
     }
@@ -177,6 +186,7 @@ const createTodoElement = (todoId: string) => {
             className="min-h-[200px] border border-#161515f3 rounded p-4 focus:outline-none bg-#161515f3 text-white"
             onKeyDown={handleKeyDown}
           >
+            
           </div>
       </div>
   );

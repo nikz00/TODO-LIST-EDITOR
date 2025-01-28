@@ -31,3 +31,8 @@ body {
   align-items: center;
   gap: 2rem;
 }
+
+[contenteditabe]:empty:before {
+  content: 'Start typing...';
+  color: #94a3b8;
+}
