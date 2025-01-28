@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+[contenteditable]:empty:before {
+    content: 'Start typing...';
+    color: #94a3b8;
+  }
+  
+.todo-item {
+    @apply flex items-center gap-2 my-1;
+}
+
+.todo-checkbox {
+    @apply w-4 h-4 border-2 border-gray-400 rounded appearance-none cursor-pointer;
+}
+
+.todo-checkbox:checked {
+    @apply bg-blue-500 border-blue-500;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E");
+}
+
+.todo-text {
+    @apply flex-1;
+}
+
+.todo-text.line-through {
+    @apply text-gray-400;
+}
